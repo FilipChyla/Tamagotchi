@@ -3,33 +3,28 @@ package com.tamagotchi;
 import com.tamagotchi.animals.*;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Scanner;
 
 
-public class Tamagotchi implements Menu {
+public class Tamagotchi {
     private final String FILE_NAME = "src/com/tamagotchi/saveFile.txt";
     private Animal animal;
     private final Scanner userInput = new Scanner(System.in);
+    private final AnimalProvider animalProvider;
+    private final AnimalFactory animalFactory;
 
-    @Override
+    public Tamagotchi(AnimalProvider animalProvider, AnimalFactory animalFactory){
+        this.animalProvider = animalProvider;
+        this.animalFactory = animalFactory;
+    }
+
     public void newGame() {
-
-        String animalClass, animalName;
-
-        System.out.println("Hi! What is your animal name?: ");
-        animalName = userInput.nextLine();
-
-        System.out.println("What animal would you like to adopt?");
-        do {
-            System.out.println(Arrays.toString(AnimalList.values()));
-            animalClass = userInput.nextLine();
-        } while (animalCreation(animalClass, animalName));
+        AnimalProvider.AnimalDto animalDto = animalProvider.getAnimal();
+        this.animal = animalFactory.createAnimal(animalDto);
 
     }
 
-    @Override
     public boolean animalCreation(String animalClass, String animalName) {
         switch (animalClass.toLowerCase(Locale.ROOT)) {
             case "cat" -> {
@@ -51,7 +46,6 @@ public class Tamagotchi implements Menu {
         }
     }
 
-    @Override
     public void userAction() {
         int userChoice = 0;
         boolean isCorrect = false;
@@ -90,7 +84,6 @@ public class Tamagotchi implements Menu {
 
     }
 
-    @Override
     public void options() {
         int userChoice = 0;
         boolean isCorrect = false;
@@ -125,7 +118,6 @@ public class Tamagotchi implements Menu {
         }
     }
 
-    @Override
     public void save() {
         String className = animal.getClass().getSimpleName();
         String saveString = className + "\n" +
@@ -143,7 +135,6 @@ public class Tamagotchi implements Menu {
         }
     }
 
-    @Override
     public void load() {
         String animalClass, animalName;
         int hunger, happiness, energy;
@@ -161,6 +152,8 @@ public class Tamagotchi implements Menu {
             animal.setHappiness(happiness);
             animal.setEnergy(energy);
 
+            reader.close();
+
         } catch (IOException e) {
             System.err.println("There is no save file");
         }
@@ -169,7 +162,6 @@ public class Tamagotchi implements Menu {
         }
     }
 
-    @Override
     public void exit() {
         System.exit(0);
     }
